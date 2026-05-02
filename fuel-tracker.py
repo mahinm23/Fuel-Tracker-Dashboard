@@ -12,5 +12,5 @@ df = df.dropna()
 st.write("Fuel Tracker Data:")
 st.dataframe(df.head())
 
-fig = px.line(df, x='Travel Date', y='MPG', title='MPG vs trips')
+fig = px.line(df, x='Travel Date', y='MPG', title='MPG vs trips', hover_data=['Location', 'Miles'])
 st.plotly_chart(fig)
