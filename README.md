@@ -10,7 +10,7 @@ venv\Scripts\activate.bat       # Windows CMD
 
 venv\Scripts\Activate.ps1       # Windows PowerShell
 
-pip install streamlit pandas
+pip install streamlit pandas plotly
 
 # Run
 streamlit run fuel-tracker.py
