@@ -5,7 +5,12 @@ import plotly.express as px
 st.title("Fuel Tracker")
 
 # Import the trips database
-df = pd.read_csv("Trips_cleaned.csv")
+@st.cache_data
+def load_data(file):
+    df = pd.read_csv(file)
+    return df
+
+df = load_data("Trips_cleaned.csv")
 
 st.write("Fuel Tracker Data:")
 if st.checkbox("Show DF Head"):
