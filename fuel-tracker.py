@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+st.set_page_config(layout='wide')
 st.title("Fuel Tracker")
 
 # Import the trips database
@@ -15,11 +16,12 @@ df['Travel Date'] = pd.to_datetime(df['Travel Date'])
 
 # High view metrics
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric('Average MPG', df['MPG'].mean(), 'MPG')
-col2.metric('Average Distance', df['Miles'].mean(), 'Miles')
-col3.metric('Average Trip Cost', df['Cost'].mean())
-col4.metric('Total Saved (TFL - fuel cost)', df['Estimated TFL'].sum() - df['Cost'].sum())
-col5.metric('Total Miles Covered', df['Mileage'].iloc[-1]-df['Mileage'].iloc[0], 'Miles')
+col1.metric('Average MPG', f"{df['MPG'].mean():.1f}", 'MPG')
+col2.metric('Average Distance', f"{df['Miles'].mean():.1f}", 'Miles')
+col3.metric('Average Trip Cost', f"£{df['Cost'].mean():.2f}", '£ (GBP)')
+col4.metric('Total Saved (TFL - fuel cost)', f"£{df['Estimated TFL'].sum() - df['Cost'].sum():.2f}", '£ (GBP)')
+col5.metric('Total Miles Covered', f"{df['Mileage'].iloc[-1]-df['Mileage'].iloc[0]:.0f}", 'Miles')
+
 
 # Checkbox to display the first 5 rows of the df
 st.write("Fuel Tracker Data:")
