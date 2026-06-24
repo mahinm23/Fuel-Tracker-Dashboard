@@ -6,12 +6,10 @@ st.title("Fuel Tracker")
 
 # Import the trips database
 df = pd.read_csv("Trips.csv")
-df['Tank'] = df['Tank'].str.split(' ()').str[0]
-df = df.dropna()
-df['Travel Date'] = pd.to_datetime(df['Travel Date'], format='%d/%m/%Y')
 
 st.write("Fuel Tracker Data:")
-st.dataframe(df.head())
+if st.checkbox("Show DF Head"):
+    st.dataframe(df.head())
 
 line = px.line(df, x='Travel Date', y='MPG', title='MPG vs trips', hover_data=['Location', 'Miles'])
 st.plotly_chart(line)
