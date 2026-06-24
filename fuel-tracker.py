@@ -13,6 +13,15 @@ def load_data(file):
 df = load_data("Trips_cleaned.csv")
 df['Travel Date'] = pd.to_datetime(df['Travel Date'])
 
+# High view metrics
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric('Average MPG', df['MPG'].mean(), 'MPG')
+col2.metric('Average Distance', df['Miles'].mean(), 'Miles')
+col3.metric('Average Trip Cost', df['Cost'].mean())
+col4.metric('Total Saved (TFL - fuel cost)', df['Estimated TFL'].sum() - df['Cost'].sum())
+col5.metric('Total Miles Covered', df['Mileage'].iloc[-1]-df['Mileage'].iloc[0], 'Miles')
+
+# Checkbox to display the first 5 rows of the df
 st.write("Fuel Tracker Data:")
 if st.checkbox("Show DF Head"):
     st.dataframe(df.head())
