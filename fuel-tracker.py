@@ -73,21 +73,33 @@ st.plotly_chart(bar_weekly)
 bins = [0, 5, 15, float('inf')]
 labels = ['Short', 'Medium', 'Long']
 
+
 # Applies the grouping to the df by creating a new column called Trip Type
 df['Trip Type'] = pd.cut(x = df['Miles'], bins=bins, labels=labels)
+df.sort_values(by='Trip Type', inplace=True)
 
 by_trip_type = df.groupby('Trip Type')[['MPG', 'Miles', 'Cost']].mean().reset_index()
 
 # Create subplots for each metric by trip type
 # Enables a shared X axis and their own Y axis
-fig = make_subplots(rows=4, cols=1, 
-                              subplot_titles=['Avg MPG', 'Avg Miles', 'Avg Cost', 'Trip Count'])
+fig = make_subplots(rows=4, cols=2, 
+                              subplot_titles=['Avg MPG', 'Variation of MPG', 
+                                              'Avg Miles', 'Variation of Miles', 
+                                              'Avg Cost', 'Variation of Cost', 
+                                              'Trip Count'])
 
-fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['MPG']), row=1, col=1)
-fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['Miles']), row=2, col=1)
-fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['Cost']), row=3, col=1)
 fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=df['Trip Type'].value_counts()), row=4, col=1)
+
+metrics = ['MPG', 'Miles', 'Cost']
+X = by_trip_type['Trip Type']
+
+for i in range(1, 4):
+    fig.add_trace(go.Bar(x=X, y=by_trip_type[metrics[i-1]]), row=i, col=1)
+    fig.add_trace(go.Box(x=df['Trip Type'], y=df[metrics[i-1]]), row=i, col=2)
 
 fig.update_layout(title_text='Avg Metric by Trip Type', height = 1000)
 
 st.plotly_chart(fig)
+
+monthly_cost = df.groupby(pd.Grouper(key='Travel Date', freq='ME'))[['Cost']].sum().reset_index()
+st.plotly_chart(px.bar(monthly_cost, x='Travel Date', y='Cost', title='Monthly Costs'))
