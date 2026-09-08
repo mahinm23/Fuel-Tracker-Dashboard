@@ -8,8 +8,14 @@ st.title("Fuel Tracker")
 # Import the trips database
 @st.cache_data
 def load_data(file):
-    df = pd.read_csv(file)
-    return df
+    try:
+        # df = pd.read_csv(file)
+        return df
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        st.stop()
+        # Stops error messages displayed in the app,
+        # prevents app from running if file not found or otherwise
 
 df = load_data("Trips_cleaned.csv")
 df['Travel Date'] = pd.to_datetime(df['Travel Date'])
