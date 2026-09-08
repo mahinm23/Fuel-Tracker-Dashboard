@@ -9,7 +9,11 @@ st.title("Fuel Tracker")
 @st.cache_data
 def load_data(file):
     try:
-        # df = pd.read_csv(file)
+        df = pd.read_csv(file)
+        # Date time does not persist in the csv
+        # Moved here so that it doesn't get converted 
+        # again every time the app is re run
+        df['Travel Date'] = pd.to_datetime(df['Travel Date'])
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
@@ -18,7 +22,6 @@ def load_data(file):
         # prevents app from running if file not found or otherwise
 
 df = load_data("Trips_cleaned.csv")
-df['Travel Date'] = pd.to_datetime(df['Travel Date'])
 
 # High view metrics
 col1, col2, col3, col4, col5 = st.columns(5)
