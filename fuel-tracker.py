@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.io as pio
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 st.set_page_config(layout='wide')
 st.title("Fuel Tracker")
@@ -23,6 +26,8 @@ def load_data(file):
 
 df = load_data("Trips_cleaned.csv")
 
+pio.templates.default = "ggplot2"
+
 # High view metrics
 col1, col2, col3, col4, col5 = st.columns(5)
 col1.metric('Average MPG', f"{df['MPG'].mean():.1f}", 'MPG')
@@ -37,19 +42,52 @@ st.write("Fuel Tracker Data:")
 if st.checkbox("Show DF Head"):
     st.dataframe(df.head())
 
+
+# Line chart for trips and mpg in order of date
 line = px.line(df, x='Travel Date', y='MPG', 
                title='MPG vs trips', 
                hover_data=['Location', 'Miles'])
 st.plotly_chart(line)
 
+
+# Scatter plot for the cost of each trip in order of date
 per_trip_costs = px.scatter(df, x='Travel Date', y='Cost', 
                             title='Cost Per Trip', 
                             hover_data=['Location', 'Miles'])
 st.plotly_chart(per_trip_costs)
 
+
+# Bar chart for average weekly fuel mpg
 df_weekly = df.groupby(pd.Grouper(key='Travel Date', freq='W'))\
     [['MPG', 'Miles', 'Cost']].mean().reset_index()
 
-bar_weekly = px.bar(df_weekly, x='Travel Date', y='MPG', 
-                    title="Weekly Average MPG:")
+bar_weekly = px.bar(df_weekly, x='Travel Date', y='MPG', title="Weekly Average MPG:")
 st.plotly_chart(bar_weekly)
+
+
+# Bar chart for average metric grouped by the type of trip
+
+# Create the bins for the trip types
+# Short trips are 0-5, medium 5-15, 
+# Everything above is a long trip
+bins = [0, 5, 15, float('inf')]
+labels = ['Short', 'Medium', 'Long']
+
+# Applies the grouping to the df by creating a new column called Trip Type
+df['Trip Type'] = pd.cut(x = df['Miles'], bins=bins, labels=labels)
+
+by_trip_type = df.groupby('Trip Type')[['MPG', 'Miles', 'Cost']].mean().reset_index()
+
+# Create subplots for each metric by trip type
+# Enables a shared X axis and their own Y axis
+fig = make_subplots(rows=4, cols=1, 
+                              subplot_titles=['Avg MPG', 'Avg Miles', 'Avg Cost', 'Trip Count'])
+
+fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['MPG']), row=1, col=1)
+fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['Miles']), row=2, col=1)
+fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=by_trip_type['Cost']), row=3, col=1)
+fig.add_trace(go.Bar(x=by_trip_type['Trip Type'], y=df['Trip Type'].value_counts()), row=4, col=1)
+
+fig.update_layout(title_text='Avg Metric by Trip Type', height = 1000)
+
+st.plotly_chart(fig)
